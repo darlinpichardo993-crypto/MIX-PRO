@@ -8,7 +8,7 @@ ERA MATCH, Auto Mix, Genre, Vocal, Instrument, Master Match, Reference Analyzer,
 | Parte | Estado |
 |---|---|
 | DSP, análisis, motores, presets, parámetros (`Source/DSP`, `Analysis`, `Engines`) | Implementado y **probado**: 74 comprobaciones pasan (`Tests/test_core.cpp`, ver `docs/TEST_REPORT.md`) |
-| Plugin JUCE (procesador, estado, automatización, UI, presets, render WAV) | Implementado; **no se pudo compilar en el entorno donde fue escrito** (sin JUCE ni Windows). El primer run de GitHub Actions puede mostrar errores de compilación a corregir |
+| Plugin JUCE (procesador, estado, automatización, UI, presets, render WAV; importación de referencias MP3) | Implementado; **no se pudo compilar en el entorno donde fue escrito** (sin JUCE ni Windows). El primer run de GitHub Actions puede mostrar errores de compilación a corregir |
 | VST3/Standalone/ZIPs/instalador | **No hay binarios en este repositorio.** Los genera el workflow `build-windows.yml` al compilar |
 | Pruebas dentro de FL Studio 25 | No realizadas. Debes validarlas tú |
 
