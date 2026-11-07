@@ -1,0 +1,140 @@
+name: Build MIX PRO (Windows)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'CMakeLists.txt'
+      - 'CMakePresets.json'
+      - 'Source/**'
+      - 'Tests/**'
+      - 'Presets/**'
+      - 'Installer/**'
+      - 'Scripts/**'
+      - '.github/workflows/build-windows.yml'
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mix-pro-windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build VST3, Standalone and installer (x64)
+    runs-on: windows-2022
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Configure MSVC environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Configure CMake
+        shell: pwsh
+        run: >
+          cmake -S . -B build
+          -G "Visual Studio 17 2022"
+          -A x64
+          -DMIXPRO_BUILD_PLUGIN=ON
+          -DMIXPRO_BUILD_TESTS=ON
+
+      - name: Build Release
+        shell: pwsh
+        run: cmake --build build --config Release --parallel 2
+
+      - name: Run core tests
+        shell: pwsh
+        run: ctest --test-dir build -C Release --output-on-failure
+
+      - name: Locate and stage VST3 and Standalone
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $vst3 = Get-ChildItem -Path build -Directory -Filter 'MIX PRO.vst3' -Recurse | Select-Object -First 1
+          if (-not $vst3) {
+            $vst3 = Get-ChildItem -Path build -Directory -Filter '*.vst3' -Recurse | Select-Object -First 1
+          }
+          if (-not $vst3) { throw 'VST3 bundle was not produced by the build.' }
+
+          $standalone = Get-ChildItem -Path build -File -Filter '*.exe' -Recurse |
+            Where-Object { $_.Name -match 'MIX.?PRO' -and $_.FullName -notmatch 'CMakeFiles|Tests' } |
+            Select-Object -First 1
+          if (-not $standalone) { throw 'MIX PRO Standalone executable was not produced by the build.' }
+
+          New-Item -ItemType Directory -Force -Path dist/vst3, dist/standalone | Out-Null
+          Copy-Item -Path $vst3.FullName -Destination 'dist/vst3/MIX PRO.vst3' -Recurse -Force
+          Copy-Item -Path $standalone.FullName -Destination 'dist/standalone/MIX PRO.exe' -Force
+
+          if (-not (Test-Path 'dist/vst3/MIX PRO.vst3/Contents/x86_64-win/MIX PRO.vst3')) {
+            $inner = Get-ChildItem 'dist/vst3/MIX PRO.vst3' -Filter '*.vst3' -File -Recurse | Select-Object -First 1
+            if (-not $inner) { throw 'VST3 bundle does not contain its Windows x64 binary.' }
+          }
+          Get-ChildItem dist -Recurse | Format-Table FullName, Length
+
+      - name: Prepare Windows distribution
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force -Path dist/windows/Presets, dist/windows/docs | Out-Null
+          Copy-Item 'dist/vst3/MIX PRO.vst3' 'dist/windows/MIX PRO.vst3' -Recurse -Force
+          Copy-Item 'dist/standalone/MIX PRO.exe' 'dist/windows/MIX PRO.exe' -Force
+          Copy-Item 'Presets/*' 'dist/windows/Presets' -Recurse -Force
+          Copy-Item 'docs/*' 'dist/windows/docs' -Recurse -Force
+          Copy-Item README.md, THIRD_PARTY_LICENSES.md, LICENSE 'dist/windows/' -Force
+          Compress-Archive -Path 'dist/vst3/MIX PRO.vst3' -DestinationPath 'MIX_PRO_VST3.zip' -Force
+          Compress-Archive -Path 'dist/windows/*' -DestinationPath 'MIX_PRO_WINDOWS.zip' -Force
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup --yes --no-progress
+
+      - name: Build Setup.exe
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $iscc = 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
+          if (-not (Test-Path $iscc)) { throw 'Inno Setup compiler was not found.' }
+          & $iscc 'Installer/MixPro.iss'
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed with exit code $LASTEXITCODE" }
+          if (-not (Test-Path 'Installer/Output/MIX_PRO_Setup.exe')) { throw 'Setup.exe was not generated.' }
+          Copy-Item 'Installer/Output/MIX_PRO_Setup.exe' 'MIX_PRO_Setup.exe' -Force
+
+      - name: Package source
+        shell: pwsh
+        run: |
+          git archive --format=zip --output=MIX_PRO_SOURCE.zip HEAD
+
+      - name: Verify deliverables
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $required = @('MIX_PRO_VST3.zip', 'MIX_PRO_WINDOWS.zip', 'MIX_PRO_SOURCE.zip', 'MIX_PRO_Setup.exe')
+          foreach ($file in $required) {
+            if (-not (Test-Path $file)) { throw "Missing deliverable: $file" }
+            if ((Get-Item $file).Length -lt 1024) { throw "Deliverable is unexpectedly small: $file" }
+          }
+          Get-Item $required | Format-Table Name, Length
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: MIX_PRO_Windows_Release
+          path: |
+            MIX_PRO_VST3.zip
+            MIX_PRO_WINDOWS.zip
+            MIX_PRO_SOURCE.zip
+            MIX_PRO_Setup.exe
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
