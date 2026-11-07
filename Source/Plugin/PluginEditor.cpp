@@ -115,7 +115,7 @@ RefTools::RefTools(MixProProcessor& p, bool c, bool lufs) : proc(p), compact(c),
     for (auto* b : { &loadBtn, &exportBtn, &importBtn, &clearBtn }) addAndMakeVisible(*b); if (offerLufs) addAndMakeVisible(lufsBtn);
     addAndMakeVisible(status); status.setColour(juce::Label::textColourId, accent); status.setFont(juce::FontOptions(12.f));
     report.setMultiLine(true); report.setReadOnly(true); report.setFont(juce::Font(juce::FontOptions(13.f, juce::Font::plain))); if (!compact) addAndMakeVisible(report);
-    loadBtn.onClick = [this] { chooser = std::make_unique<juce::FileChooser>("Select reference audio", juce::File(), "*.wav;*.aif;*.aiff;*.flac;*.ogg");
+    loadBtn.onClick = [this] { chooser = std::make_unique<juce::FileChooser>("Select reference audio", juce::File(), "*.wav;*.aif;*.aiff;*.flac;*.ogg;*.mp3");
         chooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles, [this](const juce::FileChooser& fc) { auto f = fc.getResult(); if (f.existsAsFile()) proc.loadReferenceFile(f); }); };
     exportBtn.onClick = [this] { auto j = proc.referenceJson(); if (j.isEmpty()) return; chooser = std::make_unique<juce::FileChooser>("Export fingerprint", proc.dataDir(), "*.json");
         chooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::canSelectFiles | juce::FileBrowserComponent::warnAboutOverwriting, [this, j](const juce::FileChooser& fc) { auto f = fc.getResult(); if (f != juce::File()) f.replaceWithText(j); }); };
@@ -140,7 +140,7 @@ void RefTools::paint(juce::Graphics& g) {
 }
 void RefTools::timerCallback() {
     status.setText(proc.getStatus(), juce::dontSendNotification);
-    if (lastVersion != proc.referenceVersion()) { lastVersion = proc.referenceVersion(); auto f = proc.getReference(); report.setText(f.valid ? buildReport(f) : juce::String("No reference loaded.\nLoad a WAV / AIFF / FLAC file (legally obtained) or import a fingerprint JSON."), false); repaint(); }
+    if (lastVersion != proc.referenceVersion()) { lastVersion = proc.referenceVersion(); auto f = proc.getReference(); report.setText(f.valid ? buildReport(f) : juce::String("No reference loaded.\nLoad a WAV / AIFF / FLAC / MP3 file (legally obtained) or import a fingerprint JSON."), false); repaint(); }
 }
 
 // ======================= Pages =======================
@@ -234,10 +234,10 @@ void MixProEditor::showPage(int i) {
     case 0: page = makeInfo(p, "MIX PRO - one unified system: ERA MATCH, Auto Mix, Genre, Vocal, Instrument, Master Match, Reference Analyzer. Insert one instance per channel/bus, choose the MODE (top) and the instrument ROLE; every control is connected to real DSP.", {"role", "style", "amount", "inGain", "outGain", "matchAmount"}); break;
     case 1: page = makeInfo(p, "AUTO MIX - analyses the signal live and tames accumulations/resonances (max 4.5 dB) on top of the role chain. Style scales EQ / dynamics / saturation. Set mode to AUTO MIX.", {"role", "style", "amount", "matchAmount", "matchFreeze", "dynamics", "character", "ambience", "body", "presence"}); break;
     case 2: page = makeInfo(p, "ERA MATCH - the loaded reference ALWAYS has priority; era shapes (ERA 01 late 90s / 02 early 2000s / 03 mid-late 2000s, blended continuously) are only starting points. Set mode to ERA MATCH (or REFERENCE MATCH for a pure reference match).", {"eraPos", "matchAmount", "matchRef", "matchFreeze", "role", "amount", "style"}, 1); break;
-    case 3: page = makeInfo(p, "REFERENCE ANALYZER - load a legally obtained WAV / AIFF / FLAC to create a Reference Fingerprint (JSON). Values are measured; interpretation and confidence are derived from them.", {}, 1); break;
+    case 3: page = makeInfo(p, "REFERENCE ANALYZER - load a legally obtained WAV / AIFF / FLAC / MP3 to create a Reference Fingerprint (JSON). Values are measured; interpretation and confidence are derived from them.", {}, 1); break;
     case 4: page = std::make_unique<GenrePage>(p); break;
-    case 5: page = makeInfo(p, "VOCAL ENGINE - roles: Lead, Second Voice, Backing, Doubles, Harmonies, Choir. HPF, EQ, de-esser, compression, saturation, reverb, delay, stereo. Set mode to VOCAL MIX.", {"role", "deEss", "deEssFreq", "presence", "body", "dynamics", "character", "ambience", "reverbSize", "reverbDamp", "preDelay", "delayMs", "delayFb", "delaySync", "delayDiv", "width", "position", "genre"}); break;
-    case 6: page = makeInfo(p, "INSTRUMENT ENGINE - guitars, bass, bongos, guira, percussion, keys and more. Guitar: Body, Presence, Pick Attack, Character, Dynamic Control, Ambience, Stereo Position. Set mode to INSTRUMENT MIX.", {"role", "body", "presence", "attack", "sustain", "character", "dynamics", "ambience", "position", "width", "genre", "style"}); break;
+    case 5: page = makeInfo(p, "VOCAL ENGINE - roles: Lead, Second Voice, Backing, Doubles, Harmonies, Choir. HPF, EQ, de-esser, compression, saturation, reverb, delay, stereo. Set mode to VOCAL MIX. Effects are dry by default; raise Ambience only when you want reverb/delay.", {"role", "deEss", "deEssFreq", "presence", "body", "dynamics", "character", "ambience", "reverbSize", "reverbDamp", "preDelay", "delayMs", "delayFb", "delaySync", "delayDiv", "width", "position", "genre"}); break;
+    case 6: page = makeInfo(p, "INSTRUMENT ENGINE - guitars, bass, bongos, guira, percussion, keys and more. Guitar: Body, Presence, Pick Attack, Character, Dynamic Control, Ambience, Stereo Position. Set mode to INSTRUMENT MIX. Effects are dry by default; raise Ambience only when you want reverb/delay.", {"role", "body", "presence", "attack", "sustain", "character", "dynamics", "ambience", "position", "width", "genre", "style"}); break;
     case 7: page = makeInfo(p, "MASTER MATCH - EQ + match, 3-band multiband, glue compressor, saturation, stereo, loudness match to YOUR target and true-peak-safe limiter. Load a reference to match its tonal balance. Set mode to MASTER MATCH.", {"mTargetLufs", "mCeiling", "mMb", "mGlue", "mMonoLow", "mTilt", "mMatchLoud", "matchAmount", "manLow", "manHigh", "width", "character"}, 2); break;
     case 8: page = std::make_unique<PresetPage>(p); break;
     default: page = std::make_unique<SettingsPage>(p); break;
