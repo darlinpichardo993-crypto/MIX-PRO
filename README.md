@@ -16,7 +16,7 @@ ERA MATCH, Auto Mix, Genre, Vocal, Instrument, Master Match, Reference Analyzer,
 1. Sube este repo a GitHub (rama `main`).
 2. *Actions → Build MIX PRO (Windows) → Run workflow*.
 3. Descarga los artefactos: `MIX_PRO_VST3.zip`, `MIX_PRO_WINDOWS.zip`, `MIX_PRO_SOURCE.zip`, `MIX_PRO_Setup.exe`.
-El workflow compila Release x64 (JUCE 8.0.4 fijado), ejecuta las pruebas, verifica que el VST3 existe, empaqueta y valida con *pluginval*. Falla si algo de eso falla; no publica ZIPs vacíos.
+El workflow compila Release x64 (JUCE 8.0.4 fijado), ejecuta la suite de pruebas del núcleo, comprueba que el bundle VST3 y el ejecutable Standalone existen, genera el instalador Inno Setup y publica los artefactos. La validación dentro de FL Studio y con pluginval todavía debe realizarse por separado.
 
 ## Compilar en local
 `Scripts/build-windows.ps1` (VS 2022 + CMake ≥ 3.22). Solo pruebas del núcleo, sin JUCE: `sh Scripts/build-core-tests.sh`.
