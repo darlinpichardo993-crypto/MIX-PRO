@@ -81,6 +81,18 @@ int main() {
     { auto& g = GenreLibrary::instance(); g.resetDefaults(); g.edit(0).low = 3.3f; auto j = g.toJson(); g.resetDefaults(); CHECK(std::fabs(g.get(0).low - 0.5f) < 1e-5, "reset"); CHECK(g.fromJson(j) && std::fabs(g.get(0).low - 3.3f) < 1e-3, "restored from json"); g.resetDefaults(); }
     TEST("Bypass preserves original signal exactly")
     { ParamSet P; P.mode = kModeAuto; P.bypass = true; auto x = noise(N, 0.2f); auto y = runEngine(x, P, sr); CHECK(x == y, "bypass bit-identical"); }
+    TEST("Dry defaults: no role or genre adds reverb/delay; Ambience is opt-in")
+    {
+      bool dry = true;
+      for (int mode : { kModeAuto, kModeVocal, kModeInstrument, kModeGenre, kModeEra, kModeReference })
+        for (int role = 0; role < kNumRoles; ++role) { ParamSet P; P.mode = mode; P.role = role; P.genre = role % kNumGenres; Effective E; computeEffective(P, 120.0, E); dry &= E.revMix == 0.f && E.dlyMix == 0.f; }
+      CHECK(dry, "all roles/modes are dry at default Ambience=0");
+      ParamSet wet; wet.mode = kModeVocal; wet.role = LeadVocal; wet.ambience = 0.5f; Effective W; computeEffective(wet, 120.0, W);
+      CHECK(W.revMix > 0.f && W.dlyMix > 0.f, "Ambience explicitly enables optional space");
+      auto presets = factoryPresets(); bool presetsDry = true;
+      for (const auto& preset : presets) { float values[kNumParams]; defaultValues(values); preset.apply(values); ParamSet P; fillParamSet(values, P); Effective E; computeEffective(P, 120.0, E); presetsDry &= E.revMix == 0.f && E.dlyMix == 0.f; }
+      CHECK(presetsDry, "all factory presets load dry");
+    }
     TEST("Parameters change the audio")
     { auto x = noise(N, 0.1f); ParamSet A; A.mode = kModeInstrument; A.role = LeadGuitar; ParamSet B = A; B.presence = 1.f; B.character = 0.8f; ParamSet C = A; C.role = Bass;
       auto ya = runEngine(x, A, sr), yb = runEngine(x, B, sr), yc = runEngine(x, C, sr); double d1 = 0, d2 = 0; for (size_t i = 0; i < N; ++i) { d1 += std::fabs(ya[i] - yb[i]); d2 += std::fabs(ya[i] - yc[i]); }
