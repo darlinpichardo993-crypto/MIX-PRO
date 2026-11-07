@@ -87,7 +87,7 @@ void MixProProcessor::loadReferenceFile(const juce::File& file) {
     juce::Thread::launch([this, file] {
         juce::AudioFormatManager fm; fm.registerBasicFormats();
         std::unique_ptr<juce::AudioFormatReader> rd(fm.createReaderFor(file));
-        if (rd == nullptr || rd->lengthInSamples < 1) setStatus("Could not read audio file (supported: WAV, AIFF, FLAC, OGG).");
+        if (rd == nullptr || rd->lengthInSamples < 1) setStatus("Could not read audio file (supported: WAV, AIFF, FLAC, OGG, MP3).");
         else {
             const int ch = (int)std::min<unsigned>(2, rd->numChannels); const int n = (int)std::min<juce::int64>(rd->lengthInSamples, (juce::int64)(rd->sampleRate * 600.0));
             juce::AudioBuffer<float> b(ch, n);

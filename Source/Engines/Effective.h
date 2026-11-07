@@ -25,7 +25,7 @@ inline void computeEffective(const ParamSet& P, double bpm, Effective& E) {
     const RoleBase B = (master || manual) ? neutralBase() : roleTable()[role];
     const StyleScale S = manual ? StyleScale{1, 1, 1, 0} : styleScale(P.style);
     float lsG = B.lsG * S.eq, p1G = B.p1G * S.eq, p2G = B.p2G * S.eq, hsG = B.hsG * S.eq + S.highDb;
-    float ratio = 1.f + (B.ratio - 1.f) * S.comp, thr = B.thr, sat = B.sat * S.sat, revMix = B.revMix, dlyMix = B.dlyMix, width = B.width;
+    float ratio = 1.f + (B.ratio - 1.f) * S.comp, thr = B.thr, sat = B.sat * S.sat, revMix = 0.f, dlyMix = 0.f, width = B.width; // dry by default; space is user-enabled only via Ambience
     if (P.mode == kModeGenre || P.mode == kModeVocal || P.mode == kModeInstrument) {
         const auto& g = GenreLibrary::instance().get(P.genre);
         lsG += g.low; hsG += g.high; p2G += g.pres; ratio = 1.f + (ratio - 1.f) * g.comp; sat *= g.sat; revMix *= g.rev; width *= g.width;

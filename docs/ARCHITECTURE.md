@@ -11,7 +11,7 @@ Source/
 Tests/        test_core.cpp (sin JUCE)
 ```
 ## Cadena de señal (por instancia)
-IN gain → HPF → EQ 4 bandas (rol + estilo + género + macros + manual) → MATCH/AUTO-EQ (16 bandas) → compresor de rol → multibanda → glue → transitorios → saturación → de-esser → estéreo (ancho/balance/mono-low) → delay → reverb → loudness match → OUT gain → limiter (solo Master) → dry/wet/bypass.
+IN gain → HPF → EQ 4 bandas (rol + estilo + género + macros + manual) → MATCH/AUTO-EQ (16 bandas) → compresor de rol → multibanda → glue → transitorios → saturación → de-esser → estéreo (ancho/balance/mono-low) → delay/reverb (desactivados por defecto; Ambience los habilita) → loudness match → OUT gain → limiter (solo Master) → dry/wet/bypass.
 ## Modos
 - **AUTO MIX / VOCAL / INSTRUMENT**: cadena del rol + detección de acumulaciones/resonancias en tiempo real (recorte máx. 4.5 dB).
 - **REFERENCE MATCH**: el espectro (16 bandas, normalizado) se acerca a la huella cargada; sin referencia cae a AUTO-EQ.
@@ -26,5 +26,6 @@ Sin asignaciones ni E/S en el hilo de audio (todo se reserva en `prepare`; la re
 - No hay comunicación entre instancias: se comparten huellas/presets por archivos JSON.
 - No hay clasificación de instrumentos por IA/ONNX (rol manual). No se afirma reproducir equipos ni estudios concretos.
 - Estimaciones de reverb/eco/reflexiones son aproximaciones de envolvente (con nivel de confianza); las reflexiones tempranas no se estiman (requeriría respuesta al impulso).
+- Delay y reverb permanecen en 0 % por defecto; los presets de fábrica son secos y Ambience es el control explícito de espacio. Referencias: WAV, AIFF, FLAC, OGG y MP3 (decodificación MP3 habilitada en JUCE).
 - Saturación sin sobremuestreo; true peak medido con interpolación 4x de 12 taps.
 - Los valores de los roles, géneros y épocas son puntos de partida heurísticos, no mediciones de grabaciones comerciales.

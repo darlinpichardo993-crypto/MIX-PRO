@@ -7,23 +7,23 @@ inline std::vector<PresetData> factoryPresets() {
     auto add = [&](const char* cat, const char* name, V v) { PresetData p; p.name = name; p.category = cat; p.values = std::move(v); out.push_back(std::move(p)); };
     enum { Bachata = 0, Soul = 22, Gospel = 23, RnB = 13, Pop = 18, Rock = 19, LatinPop = 7, LatinRnB = 8 };
     // ERA MATCH (starting points; a loaded reference takes priority over the era shape)
-    add("ERA MATCH", "Aventura 90s",            {{"mode", kModeEra}, {"role", RhythmGuitar}, {"eraPos", 0.0f}, {"matchAmount", 0.7f}, {"style", 4}, {"ambience", 0.2f}});
-    add("ERA MATCH", "Aventura 2000s",          {{"mode", kModeEra}, {"role", LeadGuitar}, {"eraPos", 1.0f}, {"matchAmount", 0.7f}, {"style", 2}, {"ambience", 0.15f}});
+    add("ERA MATCH", "Aventura 90s",            {{"mode", kModeEra}, {"role", RhythmGuitar}, {"eraPos", 0.0f}, {"matchAmount", 0.7f}, {"style", 4}});
+    add("ERA MATCH", "Aventura 2000s",          {{"mode", kModeEra}, {"role", LeadGuitar}, {"eraPos", 1.0f}, {"matchAmount", 0.7f}, {"style", 2}});
     add("ERA MATCH", "Dominican Bachata 90s",   {{"mode", kModeEra}, {"role", RhythmGuitar}, {"eraPos", 0.2f}, {"matchAmount", 0.8f}, {"style", 4}, {"body", 0.2f}});
-    add("ERA MATCH", "Romantic Bachata 2000s",  {{"mode", kModeEra}, {"role", LeadGuitar}, {"eraPos", 1.5f}, {"matchAmount", 0.7f}, {"presence", 0.2f}, {"ambience", 0.2f}});
+    add("ERA MATCH", "Romantic Bachata 2000s",  {{"mode", kModeEra}, {"role", LeadGuitar}, {"eraPos", 1.5f}, {"matchAmount", 0.7f}, {"presence", 0.2f}});
     add("ERA MATCH", "Modern Bachata",          {{"mode", kModeEra}, {"role", LeadGuitar}, {"eraPos", 2.0f}, {"matchAmount", 0.6f}, {"style", 5}});
     add("ERA MATCH", "Vintage Electric Guitar", {{"mode", kModeEra}, {"role", LeadGuitar}, {"eraPos", 0.1f}, {"style", 4}, {"character", 0.25f}, {"attack", 0.2f}});
     add("ERA MATCH", "Modern Electric Guitar",  {{"mode", kModeEra}, {"role", LeadGuitar}, {"eraPos", 2.0f}, {"style", 5}, {"presence", 0.3f}, {"dynamics", 0.2f}});
     // VOCALS
-    add("VOCALS", "Bachata Lead",        {{"mode", kModeVocal}, {"role", LeadVocal}, {"genre", Bachata}, {"deEss", 0.1f}, {"ambience", 0.25f}});
-    add("VOCALS", "Bachata Second Voice",{{"mode", kModeVocal}, {"role", SecondVoice}, {"genre", Bachata}, {"ambience", 0.3f}});
-    add("VOCALS", "Soul Vocal",          {{"mode", kModeVocal}, {"role", LeadVocal}, {"genre", Soul}, {"character", 0.2f}, {"ambience", 0.3f}});
-    add("VOCALS", "Gospel Vocal",        {{"mode", kModeVocal}, {"role", LeadVocal}, {"genre", Gospel}, {"presence", 0.2f}, {"ambience", 0.4f}});
-    add("VOCALS", "R&B Vocal",           {{"mode", kModeVocal}, {"role", LeadVocal}, {"genre", RnB}, {"ambience", 0.3f}, {"dynamics", 0.2f}});
+    add("VOCALS", "Bachata Lead",        {{"mode", kModeVocal}, {"role", LeadVocal}, {"genre", Bachata}, {"deEss", 0.1f}});
+    add("VOCALS", "Bachata Second Voice",{{"mode", kModeVocal}, {"role", SecondVoice}, {"genre", Bachata}});
+    add("VOCALS", "Soul Vocal",          {{"mode", kModeVocal}, {"role", LeadVocal}, {"genre", Soul}, {"character", 0.2f}});
+    add("VOCALS", "Gospel Vocal",        {{"mode", kModeVocal}, {"role", LeadVocal}, {"genre", Gospel}, {"presence", 0.2f}});
+    add("VOCALS", "R&B Vocal",           {{"mode", kModeVocal}, {"role", LeadVocal}, {"genre", RnB}, {"dynamics", 0.2f}});
     add("VOCALS", "Pop Vocal",           {{"mode", kModeVocal}, {"role", LeadVocal}, {"genre", Pop}, {"presence", 0.2f}, {"dynamics", 0.2f}});
     add("VOCALS", "Rock Vocal",          {{"mode", kModeVocal}, {"role", LeadVocal}, {"genre", Rock}, {"character", 0.3f}});
-    add("VOCALS", "Choir",               {{"mode", kModeVocal}, {"role", Choir}, {"genre", Gospel}, {"ambience", 0.4f}});
-    add("VOCALS", "Backing Vocals",      {{"mode", kModeVocal}, {"role", BackingVocals}, {"genre", Bachata}, {"ambience", 0.3f}});
+    add("VOCALS", "Choir",               {{"mode", kModeVocal}, {"role", Choir}, {"genre", Gospel}});
+    add("VOCALS", "Backing Vocals",      {{"mode", kModeVocal}, {"role", BackingVocals}, {"genre", Bachata}});
     // INSTRUMENTS
     add("INSTRUMENTS", "Bachata Guitar",  {{"mode", kModeInstrument}, {"role", LeadGuitar}, {"genre", Bachata}});
     add("INSTRUMENTS", "Rhythm Guitar",   {{"mode", kModeInstrument}, {"role", RhythmGuitar}, {"genre", Bachata}});
