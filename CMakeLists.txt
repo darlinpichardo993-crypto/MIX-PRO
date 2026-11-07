@@ -48,7 +48,7 @@ if(MIXPRO_BUILD_PLUGIN)
 
   target_sources(MixPro PRIVATE Source/Plugin/PluginProcessor.cpp Source/Plugin/PluginEditor.cpp)
   target_compile_definitions(MixPro PUBLIC
-    JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0 JUCE_VST3_CAN_REPLACE_VST2=0)
+    JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0 JUCE_VST3_CAN_REPLACE_VST2=0 JUCE_USE_MP3AUDIOFORMAT=1)
   target_link_libraries(MixPro
     PRIVATE mixpro_core juce::juce_audio_utils juce::juce_audio_formats juce::juce_audio_processors
     PUBLIC  juce::juce_recommended_config_flags juce::juce_recommended_warning_flags)
