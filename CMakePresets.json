@@ -1,0 +1,9 @@
+{
+  "version": 6,
+  "configurePresets": [
+    { "name": "windows-vs2022", "displayName": "Windows VS2022 x64", "generator": "Visual Studio 17 2022", "architecture": "x64", "binaryDir": "${sourceDir}/build" },
+    { "name": "core-only", "displayName": "Core tests only (no JUCE)", "binaryDir": "${sourceDir}/build-core", "cacheVariables": { "MIXPRO_BUILD_PLUGIN": "OFF" } }
+  ],
+  "buildPresets": [ { "name": "release", "configurePreset": "windows-vs2022", "configuration": "Release" } ],
+  "testPresets": [ { "name": "release", "configurePreset": "windows-vs2022", "configuration": "Release", "output": { "outputOnFailure": true } } ]
+}
